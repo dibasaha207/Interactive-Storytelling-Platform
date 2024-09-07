@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Storytelling Platform</title>
+  </head>
+  <body>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+
+      header {
+        background-color: #4caf50;
+        color: white;
+        padding: 4px;
+        text-align: center;
+        margin-bottom: 37px;
+      }
+
+      main {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      #story-container {
+        margin-bottom: 20px;
+      }
+
+      #choices-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .choice-button {
+        padding: 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+
+      .choice-button:hover {
+        background-color: #45a049;
+      }
+
+      footer {
+        text-align: center;
+        padding: 9px;
+        background-color: #4caf50;
+        color: white;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+      }
+    </style>
+    <header>
+      <h1>Interactive Storytelling Platform</h1>
+    </header>
+
+    <main>
+      <!-- Story Display Area -->
+      <div id="story-container">
+        <h2 id="story-title">The Lost Treasure</h2>
+        <p id="story-content">
+          You are an adventurer searching for hidden treasure in a mysterious
+          jungle. After days of traveling, you arrive at a fork in the road.
+        </p>
+      </div>
+
+      <!-- User Choices -->
+      <div id="choices-container">
+        <button class="choice-button" data-next="A">
+          Take the left path, which leads deeper into the dense jungle.
+        </button>
+        <button class="choice-button" data-next="B">
+          Take the right path, which follows a river.
+        </button>
+      </div>
+    </main>
+
+    <footer>
+      <p>Choose your path wisely...</p>
+    </footer>
+
+    <script>
+      const storyPaths = {
+        A: {
+          content:
+            "You venture deeper into the jungle, where the sounds of wild animals grow louder. After an hour, you find a hidden cave.",
+          choices: [
+            { text: "Enter the cave.", next: "C" },
+            { text: "Continue deeper into the jungle.", next: "D" },
+          ],
+        },
+        B: {
+          content:
+            "You follow the river and come across a peaceful waterfall. There's a small path leading behind the waterfall.",
+          choices: [
+            { text: "Follow the path behind the waterfall.", next: "E" },
+            { text: "Set up camp by the river.", next: "F" },
+          ],
+        },
+        C: {
+          content:
+            "Inside the cave, you discover ancient markings on the wall and a treasure chest hidden in the corner.",
+          choices: [
+            { text: "Open the treasure chest.", next: "G" },
+            { text: "Leave the cave.", next: "H" },
+          ],
+        },
+      };
+
+      // Track the time spent on each section
+      let startTime;
+      const choiceHistory = [];
+
+      function loadStoryContent(path) {
+        const storyContent = document.getElementById("story-content");
+        const choicesContainer = document.getElementById("choices-container");
+
+        // Update the story content
+        storyContent.textContent = storyPaths[path].content;
+
+        // Clear previous choices
+        choicesContainer.innerHTML = "";
+
+        // Add new choices
+        storyPaths[path].choices.forEach((choice) => {
+          const button = document.createElement("button");
+          button.classList.add("choice-button");
+          button.textContent = choice.text;
+          button.setAttribute("data-next", choice.next);
+          choicesContainer.appendChild(button);
+        });
+
+        // Record choice and reset start time
+        recordTimeSpent(path);
+        startTime = Date.now();
+      }
+
+      // Handle button clicks for choices
+      document
+        .getElementById("choices-container")
+        .addEventListener("click", function (e) {
+          if (e.target.classList.contains("choice-button")) {
+            const nextPath = e.target.getAttribute("data-next");
+            loadStoryContent(nextPath);
+          }
+        });
+
+      function recordTimeSpent(path) {
+        if (startTime) {
+          const endTime = Date.now();
+          const timeSpent = (endTime - startTime) / 1000; // Convert to seconds
+          choiceHistory.push({ path, timeSpent });
+          console.log(`Time spent on path ${path}: ${timeSpent} seconds`);
+        }
+      }
+
+      // Initialize the story
+      startTime = Date.now();
+    </script>
+  </body>
+</html>

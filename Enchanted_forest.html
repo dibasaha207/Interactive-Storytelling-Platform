@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Storytelling Platform</title>
+  </head>
+  <body>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+
+      header {
+        background-color: #4caf50;
+        color: white;
+        padding: 4px;
+        text-align: center;
+        margin-bottom: 37px;
+      }
+
+      main {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      #story-container {
+        margin-bottom: 20px;
+      }
+
+      #choices-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .choice-button {
+        padding: 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+
+      .choice-button:hover {
+        background-color: #45a049;
+      }
+
+      footer {
+        text-align: center;
+        padding: 9px;
+        background-color: #4caf50;
+        color: white;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+      }
+    </style>
+    <header>
+      <h1>Interactive Storytelling Platform</h1>
+    </header>
+
+    <main>
+      <!-- Story Display Area -->
+      <div id="story-container">
+        <h2 id="story-title">The Enchanted Forest</h2>
+        <p id="story-content">
+          You are a traveler wandering through a vast and magical forest, where
+          strange creatures and hidden secrets abound. After hours of walking,
+          you come across a glowing tree with two distinct paths leading away
+          from it.
+        </p>
+      </div>
+
+      <!-- User Choices -->
+      <div id="choices-container">
+        <button class="choice-button" data-next="A">
+          Follow the path leading into the dense, misty forest where strange
+          whispers can be heard.
+        </button>
+        <button class="choice-button" data-next="B">
+          Take the path that winds around a sparkling lake with crystal-clear
+          water.
+        </button>
+      </div>
+    </main>
+
+    <footer>
+      <p>Choose your path wisely...</p>
+    </footer>
+
+    <script>
+      const storyPaths = {
+        A: {
+          content:
+            "You follow the misty path deeper into the enchanted forest. The whispers grow louder, and soon you find yourself standing before a group of ancient stone statues, half-hidden by vines.",
+          choices: [
+            {
+              text: "Examine the statues closely, as they seem to be guarding something.",
+              next: "C",
+            },
+            {
+              text: "Ignore the statues and continue down the misty path.",
+              next: "D",
+            },
+          ],
+        },
+        B: {
+          content:
+            "You take the path by the lake. The water shimmers under the sunlight, and you notice a small boat tied to a dock nearby. The lake looks calm, but you can see something glinting deep beneath its surface.",
+          choices: [
+            {
+              text: "Take the boat and row out into the middle of the lake to investigate the glint.",
+              next: "E",
+            },
+            {
+              text: "Continue walking along the path around the lake, leaving the boat behind.",
+              next: "F",
+            },
+          ],
+        },
+        C: {
+          content:
+            "As you examine the statues, one of them moves! It’s a guardian of the forest. It offers you a riddle, and solving it will reveal a hidden treasure beneath the stones.",
+          choices: [
+            { text: "Attempt to solve the riddle.", next: "G" },
+            {
+              text: "Refuse the challenge and back away cautiously.",
+              next: "H",
+            },
+          ],
+        },
+        D: {
+          content:
+            "You continue down the path, but soon realize you are being followed. A shadowy figure emerges from the trees and confronts you. The figure claims to be the protector of the forest and demands to know your intentions.",
+          choices: [
+            {
+              text: "Explain that you are simply a traveler seeking adventure.",
+              next: "I",
+            },
+            {
+              text: "Run deeper into the forest without responding.",
+              next: "J",
+            },
+          ],
+        },
+        E: {
+          content:
+            "You row out into the middle of the lake. As you reach the shimmering light, you discover a magical artifact resting at the bottom. You can reach for it, but disturbing the water might awaken something lurking below.",
+          choices: [
+            { text: "Reach for the artifact.", next: "K" },
+            { text: "Row back to shore, deciding it's too risky.", next: "L" },
+          ],
+        },
+        F: {
+          content:
+            "You walk further around the lake, noticing that the trees here seem older and more twisted. The air becomes thick with magic. Ahead, you see an abandoned cabin, half-sunken into the ground.",
+          choices: [
+            { text: "Approach the cabin and investigate inside.", next: "M" },
+            {
+              text: "Avoid the cabin and continue on your journey around the lake.",
+              next: "N",
+            },
+          ],
+        },
+      };
+
+      // Track the time spent on each section
+      let startTime;
+      const choiceHistory = [];
+
+      function loadStoryContent(path) {
+        const storyContent = document.getElementById("story-content");
+        const choicesContainer = document.getElementById("choices-container");
+
+        // Update the story content
+        storyContent.textContent = storyPaths[path].content;
+
+        // Clear previous choices
+        choicesContainer.innerHTML = "";
+
+        // Add new choices
+        storyPaths[path].choices.forEach((choice) => {
+          const button = document.createElement("button");
+          button.classList.add("choice-button");
+          button.textContent = choice.text;
+          button.setAttribute("data-next", choice.next);
+          choicesContainer.appendChild(button);
+        });
+
+        // Record choice and reset start time
+        recordTimeSpent(path);
+        startTime = Date.now();
+      }
+
+      // Handle button clicks for choices
+      document
+        .getElementById("choices-container")
+        .addEventListener("click", function (e) {
+          if (e.target.classList.contains("choice-button")) {
+            const nextPath = e.target.getAttribute("data-next");
+            loadStoryContent(nextPath);
+          }
+        });
+
+      function recordTimeSpent(path) {
+        if (startTime) {
+          const endTime = Date.now();
+          const timeSpent = (endTime - startTime) / 1000; // Convert to seconds
+          choiceHistory.push({ path, timeSpent });
+          console.log(`Time spent on path ${path}: ${timeSpent} seconds`);
+        }
+      }
+
+      // Initialize the story
+      startTime = Date.now();
+    </script>
+  </body>
+</html>
